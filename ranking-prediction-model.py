@@ -5,19 +5,46 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error, r2_score
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # %%
 # load the cleaned data and do more FE
 
-data = pd.read_csv('2023_2025_avg_odds_salary_players')
+data = pd.read_csv('data/2023_2024_avg_odds_salary_players_champ_rk.csv', index_col=0)
+data = data.drop(['team_full_name', 'winner'], axis=1)
+display(data)
 
+# %%
 # Convert categorical variables to numeric if necessary (e.g., one-hot encoding)
 data = pd.get_dummies(data, columns=['team'], drop_first=True)
+# display(data)
+# %%
+# feature correlation
 
+# Compute the correlation matrix
+correlation_matrix = data.corr()
+
+# Set up the matplotlib figure
+plt.figure(figsize=(12, 10))
+
+# Create a heatmap to visualize the correlations
+sns.heatmap(correlation_matrix, annot=True, fmt='.1f', cmap='coolwarm', square=True, cbar_kws={"shrink": .8})
+
+# Add title and labels
+plt.title('Feature Correlation Matrix', fontsize=12)
+plt.xticks(rotation=45)
+plt.yticks(rotation=45)
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+
+# %%
 # Create features and target variable
-features = data.drop(['Rank'], axis=1)  # assuming 'Rank' is your target variable
-target = data['Rank']
+features = data.drop(['ranking'], axis=1)  # assuming 'ranking' is your target variable
+target = data['ranking']
 
 # Normalize the features
 scaler = StandardScaler()
@@ -32,27 +59,43 @@ model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
 
+# %%
+# metrics calculation 
+
+# Assuming y_pred and y_test are already defined from your predictions
 mse = mean_squared_error(y_test, y_pred)
-print(f'Mean Squared Error: {mse}')
+mae = mean_absolute_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r_squared = r2_score(y_test, y_pred)
+
+# Calculate MAPE
+mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
+
+# Print all metrics
+print(f'Mean Absolute Error (MAE): {mae}')
+print(f'Mean Squared Error (MSE): {mse}')
+print(f'Root Mean Squared Error (RMSE): {rmse}')
+print(f'R-squared: {r_squared}')
+print(f'Mean Absolute Percentage Error (MAPE): {mape}%')
 
 # %%
 # predict for the upcoming season
 upcoming_season_data = pd.read_csv('upcoming_nba_team_stats.csv')
 
 # Preprocess the upcoming season data
-upcoming_season_data.fillna(method='ffill', inplace=True)
-upcoming_season_data = pd.get_dummies(upcoming_season_data, columns=['Team'], drop_first=True)
+# upcoming_season_data.fillna(method='ffill', inplace=True)
+upcoming_season_data = pd.get_dummies(upcoming_season_data, columns=['team'], drop_first=True)
 scaled_upcoming_data = scaler.transform(upcoming_season_data)
 
-upcoming_season_data['Predicted Score'] = model.predict(scaled_upcoming_data)
+upcoming_season_data['predicted_score'] = model.predict(scaled_upcoming_data)
 
 # %%
 # Ensure Unique Ranks
 # Adding a small noise to ensure uniqueness
 noise = np.random.uniform(0, 1e-6, size=upcoming_season_data.shape[0])
-upcoming_season_data['Adjusted Score'] = upcoming_season_data['Predicted Score'] + noise
+upcoming_season_data['adjusted_score'] = upcoming_season_data['predicted_score'] + noise
 
-# Rank based on the adjusted scores
-upcoming_season_data['Exclusive Rank'] = upcoming_season_data['Adjusted Score'].rank(method='first', ascending=False).astype(int)
+# Rank based on the adjusted_scores
+upcoming_season_data['final_rank'] = upcoming_season_data['adjusted_score'].rank(method='first', ascending=False).astype(int)
 
-print(upcoming_season_data[['Team', 'Predicted Score', 'Exclusive Rank']])
+print(upcoming_season_data[['team', 'predicted_score', 'final_rank']])
