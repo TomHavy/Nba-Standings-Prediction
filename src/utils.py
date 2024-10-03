@@ -1,7 +1,5 @@
 import pandas as pd
 
-from bs4 import BeautifulSoup
-
 def get_team_conference():
 
     team_conferences = {
@@ -109,7 +107,7 @@ def get_team_names(season):
             'UTA': 'Utah Jazz',
             'WAS': 'Washington Wizards'
         }
-    elif season>2008 & season<2013:
+    elif season>2008 and season<2013:
         team_names = {
             'ATL': 'Atlanta Hawks',
             'BOS': 'Boston Celtics',
@@ -142,7 +140,7 @@ def get_team_names(season):
             'UTA': 'Utah Jazz',
             'WAS': 'Washington Wizards'
         }
-    elif season==2008:
+    elif season == 2008:
         team_names = {
             'ATL': 'Atlanta Hawks',
             'BOS': 'Boston Celtics',
@@ -175,12 +173,12 @@ def get_team_names(season):
             'UTA': 'Utah Jazz',
             'WAS': 'Washington Wizards'
         }
-    elif season<=2007:
+    elif season <= 2007:
         team_names = {
         'ATL': 'Atlanta Hawks',
         'BOS': 'Boston Celtics',
-        'BRK': 'Brooklyn Nets',
-        'CHO': 'Charlotte Hornets',
+        'NJN': 'New Jersey Nets',
+        'CHA': 'Charlotte Bobcats',
         'CHI': 'Chicago Bulls',
         'CLE': 'Cleveland Cavaliers',
         'DAL': 'Dallas Mavericks',
@@ -195,7 +193,7 @@ def get_team_names(season):
         'MIA': 'Miami Heat',
         'MIL': 'Milwaukee Bucks',
         'MIN': 'Minnesota Timberwolves',
-        'NOK': 'New Orleans/Oklahoma City Hornetss',
+        'NOK': 'New Orleans/Oklahoma City Hornets',
         'NYK': 'New York Knicks',
         'SEA': 'Seattle SuperSonics',
         'ORL': 'Orlando Magic',
@@ -284,14 +282,38 @@ def find_top_players(salaries):
     
     return top_players
 
-def concatenate_df(
-        df1,
-        df2,
+def concatenate_save_finaldf(
+        start,
+        end,
     ):
+    
+    df1 = pd.read_csv(f'data/{start+1}_2025_avg_odds_salary_players_champ_rk_po.csv', index_col=False)
+    df2 = pd.read_csv(f'data/temp/{start}_{end}_avg_odds_salary_players_champ_rk_po.csv',  index_col=False)
 
     df1 = df1.iloc[:, 1:]
     df2 = df2.iloc[:, 1:]
     final_df = pd.concat([df1, df2], ignore_index=True)
     final_df['ranking'] = final_df['ranking'].astype("Int64")
 
+    final_df.to_csv(f"data/{start}_2025_avg_odds_salary_players_champ_rk_po.csv")
+    print(f'The final aggregated dataset has been saved in data/')
+
     return final_df
+
+def map_team_name(row):
+    team_name_mapping = get_team_names(2000)  # get team names from older season
+    return team_name_mapping.get(row['team_full_name'], row['team_full_name'])  # Map the team name
+
+def get_nb_po(po):
+    
+    po.rename(columns={"Team": 'team_full_name'}, inplace=True)
+
+    po['team_full_name'] = po.apply(map_team_name, axis=1)    
+
+    po = po[['team_full_name', 'Season']]
+
+    po_apperences = po.sort_values(by=['team_full_name', 'Season'])  
+
+    po_apperences['nb_po_apperence'] = po_apperences.groupby('team_full_name').cumcount() + 1
+
+    return po_apperences

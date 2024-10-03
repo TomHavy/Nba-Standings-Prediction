@@ -5,16 +5,14 @@ import pandas as pd
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from utils import get_team_names
 
 from cleaning import (
     clean_roster,
     clean_salaries,
     clean_champions,
-    clean_ranking
+    clean_ranking,
+    clean_po,
 )
 
 def scrape_roster(season):
@@ -28,8 +26,6 @@ def scrape_roster(season):
         url = f"https://www.basketball-reference.com/teams/{team}/{season}.html"
 
         response = requests.get(url)
-
-        # print(response)
         # print(url)
 
         if response.status_code == 200:
@@ -49,7 +45,7 @@ def scrape_roster(season):
                 print(f"No table found for {season}")
 
         else:
-            print(f"Failed to retrieve data for {season}")
+            print(f"Failed to retrieve data for {season} and team {team} : {response}")
 
         time.sleep(4)
 
@@ -64,7 +60,6 @@ def scrape_preseason_odds(season):
 
     response = requests.get(url)
 
-    # print(response)
     # print(url)
 
     if response.status_code == 200:
@@ -81,7 +76,7 @@ def scrape_preseason_odds(season):
             print(f"No table found for {season}")
 
     else:
-        print(f"Failed to retrieve data for {season}")
+        print(f"Failed to retrieve data for {season} : {response}")
 
     return all_data
 
@@ -130,7 +125,6 @@ def scrape_champions():
 
     response = requests.get(url)
 
-    # print(response)
     # print(url)
 
     if response.status_code == 200:
@@ -145,7 +139,7 @@ def scrape_champions():
             print(f"No table found ")
 
     else:
-        print(f"Failed to retrieve data ")
+        print(f"Failed to retrieve data: {response}")
 
     return df
 
@@ -257,7 +251,6 @@ def scrape_ranking(season):
 
     response = requests.get(url)
 
-    # print(response)
     # print(url)
 
     for conf in ['W','E']:
@@ -279,7 +272,7 @@ def scrape_ranking(season):
                 all_data = pd.concat([all_data, df], ignore_index=True)
 
             else:
-                print(f"No table found for {season}. Looking in Division Standings...")
+                # print(f"No table found for {season}. Looking in Division Standings...")
 
                 soup = BeautifulSoup(response.content, 'html.parser')
                 table = soup.find('table', {'id': f"divs_standings_{conf}"})
@@ -300,7 +293,7 @@ def scrape_ranking(season):
                     print(f"No table found for {season} in Division Standings.")
 
         else:
-            print(f"Failed to retrieve data for {season}")
+            print(f"Failed to retrieve data for {season} : {response}")
 
     return all_data
 
@@ -386,3 +379,49 @@ def scrape_all_scrape_ranking(seasons_list):
         all_ranking = pd.concat([all_ranking, ranking], ignore_index=True)
 
     return all_ranking
+
+def scrape_po():
+    # https://www.basketball-reference.com/teams/BOS/
+
+    team_names = get_team_names(2000)
+
+    all_data = pd.DataFrame()
+    print('Scraping Playoffs apperences data for every team...')
+    
+    for team in team_names:
+        if team == 'BRK':
+            team = 'NJN'
+        elif team == 'CHO':
+            team = 'CHA'
+        elif team == 'NOP' or team == 'NOK':
+            team = 'NOH'
+        elif team == 'SEA':
+            team = 'OKC'
+
+        url = f"https://www.basketball-reference.com/teams/{team}"
+
+        response = requests.get(url)
+
+        # print(response)
+        # print(url)
+
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            table = soup.find('table', {'id': team})
+
+            if table:
+                df = pd.read_html(io.StringIO(str(table)))[0]
+                
+                df = clean_po(df)
+
+                all_data = pd.concat([all_data, df], ignore_index=True)
+
+            else:
+                print(f"No table found for {team}")
+
+        else:
+            print(f"Failed to retrieve data for {team} ")
+
+        time.sleep(4)
+
+    return all_data

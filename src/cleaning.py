@@ -1,6 +1,5 @@
 import pandas as pd
 
-from bs4 import BeautifulSoup
 from utils import height_to_inches
 
 def clean_roster(
@@ -70,4 +69,17 @@ def clean_ranking(df):
     df['ranking'] = df['ranking'].astype(int)
 
     df = df[['Season',df.columns[0], 'conference','ranking']]
+    return df
+
+def clean_po(df):
+    df['Season'] = (df['Season'].str[0:2] + df['Season'].str[5:]).astype(int)
+
+    df.drop(df.columns[8], axis=1, inplace=True)
+
+    df.drop(df.columns[14], axis=1, inplace=True)
+
+    df.loc[:, 'Team'] = df['Team'].replace({r'\*': '', ',': ''}, regex=True)
+    
+    df.dropna(subset=['Playoffs'], inplace=True)
+    
     return df
