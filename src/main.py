@@ -1,7 +1,6 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 
-
 from utils import (
     get_team_conference,
     team_avg_roster,
