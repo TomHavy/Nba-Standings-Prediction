@@ -5,7 +5,7 @@ from utils import (
     get_team_names,
     team_avg_roster,
     find_top_players,
-    concatenate_df,
+    concatenate_save_finaldf,
     get_nb_po,
 )
 from scrap import (
@@ -79,13 +79,18 @@ def scrap(start, end):
     po = scrape_po()
     po_apperences = get_nb_po(po)
 
-    all_avg_odds_salary_players_champ_rk_po = all_avg_odds_salary_players_champ_rk.merge(po_apperences, on=['team_full_name','Season'],how='left')
+    all_avg_odds_salary_players_champ_rk_po = all_avg_odds_salary_players_champ_rk.merge(
+        po_apperences, 
+        on=['team_full_name','Season'],
+        how='left',
+    )
     all_avg_odds_salary_players_champ_rk_po = all_avg_odds_salary_players_champ_rk_po.sort_values(by=['team_full_name', 'Season'], ascending=[True, False])
     all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'] = all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'].bfill()
     all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'] = all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'].astype("Int64")
     all_avg_odds_salary_players_champ_rk_po.insert(16, 'nb_po_apperence', all_avg_odds_salary_players_champ_rk_po.pop('nb_po_apperence'))
 
-    all_avg_odds_salary_players_champ_rk_po.to_csv(f"data/temp/{start}_{end-1}_avg_odds_salary_players_champ_rk.csv")
+    all_avg_odds_salary_players_champ_rk_po.to_csv(f"data/temp/{start}_{end-1}_avg_odds_salary_players_champ_rk_po.csv")
+    print(f'Successfully collected data from {start} to {end-1} and saved in data/temp/ ')
 
 def main():
 
@@ -93,13 +98,8 @@ def main():
     end = 2007
 
     scrap(start,end)
-
-    df1 = pd.read_csv('data/2010_2025_avg_odds_salary_players_champ_rk.csv', index_col=False)
-    df2 = pd.read_csv('data/temp/2008_2009_avg_odds_salary_players_champ_rk.csv',  index_col=False)
-
-    final_df = concatenate_df(df1,df2)
-
-    final_df.to_csv(f"data/2008_2025_avg_odds_salary_players_champ_rk.csv")
+    
+    concatenate_save_finaldf(start,end)
 
 if __name__ == "__main__":
     main()

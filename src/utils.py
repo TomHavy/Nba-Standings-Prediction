@@ -177,8 +177,8 @@ def get_team_names(season):
         team_names = {
         'ATL': 'Atlanta Hawks',
         'BOS': 'Boston Celtics',
-        'BRK': 'Brooklyn Nets',
-        'CHO': 'Charlotte Hornets',
+        'NJN': 'New Jersey Nets',
+        'CHA': 'Charlotte Bobcats',
         'CHI': 'Chicago Bulls',
         'CLE': 'Cleveland Cavaliers',
         'DAL': 'Dallas Mavericks',
@@ -193,7 +193,7 @@ def get_team_names(season):
         'MIA': 'Miami Heat',
         'MIL': 'Milwaukee Bucks',
         'MIN': 'Minnesota Timberwolves',
-        'NOK': 'New Orleans/Oklahoma City Hornetss',
+        'NOK': 'New Orleans/Oklahoma City Hornets',
         'NYK': 'New York Knicks',
         'SEA': 'Seattle SuperSonics',
         'ORL': 'Orlando Magic',
@@ -282,15 +282,21 @@ def find_top_players(salaries):
     
     return top_players
 
-def concatenate_df(
-        df1,
-        df2,
+def concatenate_save_finaldf(
+        start,
+        end,
     ):
+    
+    df1 = pd.read_csv(f'data/{start+1}_2025_avg_odds_salary_players_champ_rk.csv', index_col=False)
+    df2 = pd.read_csv(f'data/temp/{start}_{end}_avg_odds_salary_players_champ_rk_po.csv',  index_col=False)
 
     df1 = df1.iloc[:, 1:]
     df2 = df2.iloc[:, 1:]
     final_df = pd.concat([df1, df2], ignore_index=True)
     final_df['ranking'] = final_df['ranking'].astype("Int64")
+
+    final_df.to_csv(f"data/{start}_2025_avg_odds_salary_players_champ_rk_po.csv")
+    print(f'The final aggregated dataset has been saved in data/')
 
     return final_df
 
