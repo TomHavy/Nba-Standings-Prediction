@@ -1,7 +1,7 @@
 import pandas as pd
 
-from utils import *
 from bs4 import BeautifulSoup
+from utils import height_to_inches
 
 def clean_roster(
         roster,

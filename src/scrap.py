@@ -8,10 +8,14 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-
-from cleaning import *
-from utils import *
 from utils import get_team_names
+
+from cleaning import (
+    clean_roster,
+    clean_salaries,
+    clean_champions,
+    clean_ranking
+)
 
 def scrape_roster(season):
     # https://www.basketball-reference.com/teams/DAL/2025.html
@@ -81,7 +85,10 @@ def scrape_preseason_odds(season):
 
     return all_data
 
-def scrape_salaries(season,driver):
+def scrape_salaries(
+        season,
+        driver,
+    ):
     # https://www.basketball-reference.com/teams/CHO/2025.html
 
     all_data = pd.DataFrame()
@@ -297,7 +304,10 @@ def scrape_ranking(season):
 
     return all_data
 
-def scrape_all_rosters(start,end):
+def scrape_all_rosters(
+        start,
+        end,
+    ):
     all_rosters = pd.DataFrame()
 
     for season in range(start, end):  
@@ -310,7 +320,10 @@ def scrape_all_rosters(start,end):
             
     return all_rosters
 
-def scrape_all_preseason_odds(start,end):
+def scrape_all_preseason_odds(
+        start,
+        end,
+    ):
     all_preseason_odds = pd.DataFrame()
 
     for season in range(start, end):  
@@ -323,7 +336,10 @@ def scrape_all_preseason_odds(start,end):
 
     return all_preseason_odds
 
-def scrape_all_salaries(start,end):
+def scrape_all_salaries(
+        start,
+        end,
+    ):
 
     all_salaries = pd.DataFrame()
 
@@ -359,7 +375,7 @@ def scrape_all_nba_championships(seasons_list):
 
     return all_team_championships
 
-def all_scrape_ranking(seasons_list):
+def scrape_all_scrape_ranking(seasons_list):
     
     all_ranking = pd.DataFrame()
 
