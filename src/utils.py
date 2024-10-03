@@ -1,8 +1,6 @@
 import pandas as pd
 
 from bs4 import BeautifulSoup
-from cleaning import *
-# from scrap import *
 
 def get_team_conference():
 
@@ -264,7 +262,10 @@ def team_avg_roster(roster):
     
     return avg_roster
 
-def count_top_players(salaries,threshold=20):
+def count_top_players(
+        salaries,
+        threshold=20,
+    ):
     # based on the teams salaries we are trying to identify the numbers of stars/top players on the team (a good example is the Phoenix Suns in 2025)
 
     above = salaries[salaries['salary_percentage'] > threshold].shape[0]
@@ -283,7 +284,10 @@ def find_top_players(salaries):
     
     return top_players
 
-def concatenate_df(df1,df2):
+def concatenate_df(
+        df1,
+        df2,
+    ):
 
     df1 = df1.iloc[:, 1:]
     df2 = df2.iloc[:, 1:]
