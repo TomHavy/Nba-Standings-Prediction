@@ -24,7 +24,7 @@ def feature_importance(model, X, y):
     
 def predict(data):
     new_season_teams = data.query('Season == 2025')['team']
-    data = data.drop(['team_full_name', 'winner', 'conference'], axis=1)
+    data = data.drop(['team_full_name', 'winner', 'conference', 'not_top_players', 'total_salary'], axis=1)
     # Convert categorical variables to numeric if necessary (e.g., one-hot encoding)
     data = pd.get_dummies(data, columns=['team'], drop_first=False)
 
@@ -40,7 +40,7 @@ def predict(data):
     scaler = StandardScaler()
     scaled_features = scaler.fit_transform(features)
     
-    X_train, X_test, y_train, y_test = train_test_split(scaled_features, target, train_size=1, test_size=0.2, random_state=38)
+    X_train, X_test, y_train, y_test = train_test_split(scaled_features, target, train_size=0.9, test_size=0.1, random_state=38)
 
     model = RandomForestRegressor(n_estimators=50, random_state=38)
     # model = SVR(kernel='rbf')
@@ -80,7 +80,7 @@ def predict(data):
     new_season_data['team'] = new_season_teams
 
     # Rank based on the adjusted_scores
-    new_season_data['final_rank'] = new_season_data['adjusted_score'].rank(method='first', ascending=False).astype(int)
+    new_season_data['final_rank'] = new_season_data['adjusted_score'].rank(method='first', ascending=True).astype(int)
 
     return new_season_data
     
