@@ -94,8 +94,8 @@ def scrap(start, end):
 
 def main():
 
-    start = 2007
-    end = 2007
+    start = 2006
+    end = 2006
 
     scrap(start,end)
     
