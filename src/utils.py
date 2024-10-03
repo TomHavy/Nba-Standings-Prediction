@@ -287,7 +287,7 @@ def concatenate_save_finaldf(
         end,
     ):
     
-    df1 = pd.read_csv(f'data/{start+1}_2025_avg_odds_salary_players_champ_rk.csv', index_col=False)
+    df1 = pd.read_csv(f'data/{start+1}_2025_avg_odds_salary_players_champ_rk_po.csv', index_col=False)
     df2 = pd.read_csv(f'data/temp/{start}_{end}_avg_odds_salary_players_champ_rk_po.csv',  index_col=False)
 
     df1 = df1.iloc[:, 1:]
