@@ -45,7 +45,7 @@ def scrape_roster(season):
                 print(f"No table found for {season}")
 
         else:
-            print(f"Failed to retrieve data for {season} : {response}")
+            print(f"Failed to retrieve data for {season} and team {team} : {response}")
 
         time.sleep(4)
 
@@ -272,7 +272,7 @@ def scrape_ranking(season):
                 all_data = pd.concat([all_data, df], ignore_index=True)
 
             else:
-                print(f"No table found for {season}. Looking in Division Standings...")
+                # print(f"No table found for {season}. Looking in Division Standings...")
 
                 soup = BeautifulSoup(response.content, 'html.parser')
                 table = soup.find('table', {'id': f"divs_standings_{conf}"})
@@ -292,8 +292,8 @@ def scrape_ranking(season):
                 else:
                     print(f"No table found for {season} in Division Standings.")
 
-    else:
-        print(f"Failed to retrieve data for {season} : {response}")
+        else:
+            print(f"Failed to retrieve data for {season} : {response}")
 
     return all_data
 
@@ -393,9 +393,11 @@ def scrape_po():
             team = 'NJN'
         elif team == 'CHO':
             team = 'CHA'
-        elif team == 'NOP':
+        elif team == 'NOP' or team == 'NOK':
             team = 'NOH'
-            
+        elif team == 'SEA':
+            team = 'OKC'
+
         url = f"https://www.basketball-reference.com/teams/{team}"
 
         response = requests.get(url)
