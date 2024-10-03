@@ -19,12 +19,10 @@ from scrap import (
 
 def scrap(start, end):
     team_conference = get_team_conference()
-    team_names = get_team_names()
 
     end += 1
 
     seasons_list = [year for year in range(start, end)]
-
     all_rosters = scrape_all_rosters(start,end)
     all_avg_roster = team_avg_roster(all_rosters)
     all_avg_roster.to_csv(f"data/temp/{start}_{end-1}_avg_roster.csv")
@@ -78,7 +76,7 @@ def scrap(start, end):
         how='left',
     )
 
-    po = scrape_po(team_names)
+    po = scrape_po()
     po_apperences = get_nb_po(po)
 
     all_avg_odds_salary_players_champ_rk_po = all_avg_odds_salary_players_champ_rk.merge(po_apperences, on=['team_full_name','Season'],how='left')
@@ -91,8 +89,8 @@ def scrap(start, end):
 
 def main():
 
-    start = 2008
-    end = 2009
+    start = 2007
+    end = 2007
 
     scrap(start,end)
 
