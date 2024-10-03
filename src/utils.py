@@ -107,7 +107,7 @@ def get_team_names(season):
             'UTA': 'Utah Jazz',
             'WAS': 'Washington Wizards'
         }
-    elif season>2008 & season<2013:
+    elif season>2008 and season<2013:
         team_names = {
             'ATL': 'Atlanta Hawks',
             'BOS': 'Boston Celtics',
@@ -140,7 +140,7 @@ def get_team_names(season):
             'UTA': 'Utah Jazz',
             'WAS': 'Washington Wizards'
         }
-    elif season==2008:
+    elif season == 2008:
         team_names = {
             'ATL': 'Atlanta Hawks',
             'BOS': 'Boston Celtics',
@@ -173,7 +173,7 @@ def get_team_names(season):
             'UTA': 'Utah Jazz',
             'WAS': 'Washington Wizards'
         }
-    elif season<=2007:
+    elif season <= 2007:
         team_names = {
         'ATL': 'Atlanta Hawks',
         'BOS': 'Boston Celtics',
