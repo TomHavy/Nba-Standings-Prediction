@@ -1,7 +1,5 @@
 import pandas as pd
 
-from bs4 import BeautifulSoup
-
 def get_team_conference():
 
     team_conferences = {
@@ -295,3 +293,21 @@ def concatenate_df(
     final_df['ranking'] = final_df['ranking'].astype("Int64")
 
     return final_df
+
+def map_team_name(row):
+    team_name_mapping = get_team_names(2000)  # get team names from older season
+    return team_name_mapping.get(row['team_full_name'], row['team_full_name'])  # Map the team name
+
+def get_nb_po(po):
+    
+    po.rename(columns={"Team": 'team_full_name'}, inplace=True)
+
+    po['team_full_name'] = po.apply(map_team_name, axis=1)    
+
+    po = po[['team_full_name', 'Season']]
+
+    po_apperences = po.sort_values(by=['team_full_name', 'Season'])  
+
+    po_apperences['nb_po_apperence'] = po_apperences.groupby('team_full_name').cumcount() + 1
+
+    return po_apperences

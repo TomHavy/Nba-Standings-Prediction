@@ -5,9 +5,6 @@ import pandas as pd
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from utils import get_team_names
 
 from cleaning import (
@@ -386,3 +383,45 @@ def scrape_all_scrape_ranking(seasons_list):
         all_ranking = pd.concat([all_ranking, ranking], ignore_index=True)
 
     return all_ranking
+
+def scrape_po(team_names):
+    # https://www.basketball-reference.com/teams/BOS/
+
+    all_data = pd.DataFrame()
+    print('Scraping Playoffs apperences data for every team...')
+    
+    for team in team_names:
+        if team == 'BRK':
+            team = 'NJN'
+        elif team == 'CHO':
+            team = 'CHA'
+        elif team == 'NOP':
+            team = 'NOH'
+            
+        url = f"https://www.basketball-reference.com/teams/{team}"
+
+        response = requests.get(url)
+
+        # print(response)
+        # print(url)
+
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            table = soup.find('table', {'id': team})
+
+            if table:
+                df = pd.read_html(io.StringIO(str(table)))[0]
+                
+                df = clean_po(df)
+
+                all_data = pd.concat([all_data, df], ignore_index=True)
+
+            else:
+                print(f"No table found for {team}")
+
+        else:
+            print(f"Failed to retrieve data for {team} ")
+
+        time.sleep(4)
+
+    return all_data
