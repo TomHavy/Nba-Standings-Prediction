@@ -14,12 +14,15 @@ import matplotlib.pyplot as plt
 
 data = pd.read_csv('data/2023_2024_avg_odds_salary_players_champ_rk.csv', index_col=0)
 data = data.drop(['team_full_name', 'winner'], axis=1)
+teams = data['team']
 display(data)
 
 # %%
 # Convert categorical variables to numeric if necessary (e.g., one-hot encoding)
-data = pd.get_dummies(data, columns=['team'], drop_first=True)
-# display(data)
+data = pd.get_dummies(data, columns=['team'], drop_first=False)
+# data['team'] = teams
+display(data)
+
 # %%
 # feature correlation
 
@@ -80,11 +83,15 @@ print(f'Mean Absolute Percentage Error (MAPE): {mape}%')
 
 # %%
 # predict for the upcoming season
-upcoming_season_data = pd.read_csv('upcoming_nba_team_stats.csv')
+upcoming_season_data = pd.read_csv('data/2025_team_info.csv', index_col=0).reset_index
+upcoming_season_data = upcoming_season_data.drop(['team_full_name'], axis=1)
+upcoming_teams = upcoming_season_data['team']
+display(upcoming_season_data)
 
+# %%
 # Preprocess the upcoming season data
 # upcoming_season_data.fillna(method='ffill', inplace=True)
-upcoming_season_data = pd.get_dummies(upcoming_season_data, columns=['team'], drop_first=True)
+upcoming_season_data = pd.get_dummies(upcoming_season_data, columns=['team'])
 scaled_upcoming_data = scaler.transform(upcoming_season_data)
 
 upcoming_season_data['predicted_score'] = model.predict(scaled_upcoming_data)
@@ -94,8 +101,14 @@ upcoming_season_data['predicted_score'] = model.predict(scaled_upcoming_data)
 # Adding a small noise to ensure uniqueness
 noise = np.random.uniform(0, 1e-6, size=upcoming_season_data.shape[0])
 upcoming_season_data['adjusted_score'] = upcoming_season_data['predicted_score'] + noise
+upcoming_season_data['team'] = upcoming_teams
 
 # Rank based on the adjusted_scores
-upcoming_season_data['final_rank'] = upcoming_season_data['adjusted_score'].rank(method='first', ascending=False).astype(int)
+upcoming_season_data['final_rank'] = upcoming_season_data['adjusted_score'].rank(method='first', ascending=True).astype(int)
 
-print(upcoming_season_data[['team', 'predicted_score', 'final_rank']])
+# %%
+display(upcoming_season_data[['team', 'adjusted_score', 'final_rank']].sort_values('final_rank'))
+
+# %%
+
+# probability of the rank
