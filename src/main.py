@@ -1,13 +1,15 @@
 import pandas as pd
-from bs4 import BeautifulSoup
 
 from utils import (
     get_team_conference,
+    get_team_names,
     team_avg_roster,
     find_top_players,
-    concatenate_df
+    concatenate_df,
+    get_nb_po,
 )
 from scrap import (
+    scrape_po,
     scrape_all_rosters,
     scrape_all_preseason_odds,
     scrape_all_salaries,
@@ -17,6 +19,7 @@ from scrap import (
 
 def scrap(start, end):
     team_conference = get_team_conference()
+    team_names = get_team_names()
 
     end += 1
 
@@ -74,7 +77,17 @@ def scrap(start, end):
         on=['team_full_name', 'Season'], 
         how='left',
     )
-    all_avg_odds_salary_players_champ_rk.to_csv(f"data/temp/{start}_{end-1}_avg_odds_salary_players_champ_rk.csv")
+
+    po = scrape_po(team_names)
+    po_apperences = get_nb_po(po)
+
+    all_avg_odds_salary_players_champ_rk_po = all_avg_odds_salary_players_champ_rk.merge(po_apperences, on=['team_full_name','Season'],how='left')
+    all_avg_odds_salary_players_champ_rk_po = all_avg_odds_salary_players_champ_rk_po.sort_values(by=['team_full_name', 'Season'], ascending=[True, False])
+    all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'] = all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'].bfill()
+    all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'] = all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'].astype("Int64")
+    all_avg_odds_salary_players_champ_rk_po.insert(16, 'nb_po_apperence', all_avg_odds_salary_players_champ_rk_po.pop('nb_po_apperence'))
+
+    all_avg_odds_salary_players_champ_rk_po.to_csv(f"data/temp/{start}_{end-1}_avg_odds_salary_players_champ_rk.csv")
 
 def main():
 
