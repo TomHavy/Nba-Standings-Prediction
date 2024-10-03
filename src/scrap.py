@@ -11,7 +11,8 @@ from cleaning import (
     clean_roster,
     clean_salaries,
     clean_champions,
-    clean_ranking
+    clean_ranking,
+    clean_po,
 )
 
 def scrape_roster(season):
