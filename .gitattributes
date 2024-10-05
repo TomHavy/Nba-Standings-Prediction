@@ -1,2 +1,6 @@
 *.html linguist-generated
+*.csv linguist-generated
+*.md linguist-generated
+*.txt linguist-generated
+
 # *.ipynb linguist-vendored
