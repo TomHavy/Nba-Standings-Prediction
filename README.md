@@ -2,10 +2,6 @@
   <h1>NBA Standings Prediction</h1>
 </div>
 
-
-| **Season**  | **Team Abbreviation** | **Full Team Name** | **Conference** | **Avg Age** | **Avg Exp (years)** | **Avg Weight (in pounds)** |**Avg Height (in inches)** | **Preseason Odds** |**Highest Salary ($M)** | **Median Salary ($M)**  | **Nb of Star/Top players** |  **Nb of None Star/Top players** | **Nb of Championships** |  **Nb of Championships (Last 4 years)** | **Nb of Playoff Appearances** |**Nb of Playoff Appearances (Last 4 years) (to add)** | **Winners (yes/no) [TARGET]** | **Ranking [TARGET]** 
------------------------|-------------|---------------------|-------------------------|------------------------|------------------------------|------------------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|
-=======
 ## 🎯  Objective & Challenge
 The objective is to predict the final standings for the upcoming 2024-2025 NBA regular season. The reason for this project is that,  since it hasn't started yet, there's no game data for the upcoming season, which makes it a difficult endeavour. As a result, we decided to rely on other sources of information such as current roster details, franchise history, and preseason odds.
 
@@ -46,7 +42,16 @@ The best accuracy achieved so far is:
 - **Western Conference**: 69% accuracy
 - **Eastern Conference**: 65% accuracy
 
+<p float="left">
+  <img src="assets/west-training-result.jpg" width="380" /> 
+  <img src="assets/east-training-result.jpg" width="280" />
+</p>
 Once the model is trained and saved, you can use it to predict the standings for the 2024-2025 season. Below are the predicted standings:
+
+<p float="left">
+  <img src="assets/west-standings.png" width="300" /> 
+  <img src="assets/east-standings.png" width="300" />
+</p>
 
 ## 🔧 Improvements & Limitations
 
