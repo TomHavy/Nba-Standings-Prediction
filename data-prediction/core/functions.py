@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import(
     classification_report, 
@@ -20,7 +22,36 @@ def preprocessing(
 
     data = data.drop(['conference'], axis=1)
 
-    return data
+    data = data.query('Season != 2025')
+    data['ranking'] = data['ranking'].astype(int)
+
+    data = pd.get_dummies(data, columns=['team'], drop_first=False)
+
+    print(data.head())
+    print(data.tail(3))
+    print(data.info())
+    print(data.Season.unique())
+
+    # print(f"Training shape: {X_train.shape}")
+    # print(f"Testing shape: {X_test.shape}")
+    # print("Training label distribution:\n", pd.Series(y_train).value_counts())
+    # print("Test label distribution:\n", pd.Series(y_test).value_counts())
+
+    X = data.drop(['ranking'], axis=1)  
+    y = data['ranking']
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_scaled, 
+        y,
+        train_size=0.7, 
+        test_size=0.3, 
+        random_state=38,
+    )
+
+    return  X_train, X_test, y_train, y_test
 
 def show_feature_correlation(data):
     # Compute the correlation matrix
@@ -30,7 +61,14 @@ def show_feature_correlation(data):
     plt.figure(figsize=(12, 10))
 
     # Create a heatmap to visualize the correlations
-    sns.heatmap(correlation_matrix, annot=True, fmt='.1f', cmap='coolwarm', square=True, cbar_kws={"shrink": .8})
+    sns.heatmap(
+        correlation_matrix, 
+        annot=True, 
+        fmt='.1f', 
+        cmap='coolwarm', 
+        square=True, 
+        cbar_kws={"shrink": .8},
+    )
 
     # Add title and labels
     plt.title('Feature Correlation Matrix', fontsize=12)
@@ -41,7 +79,10 @@ def show_feature_correlation(data):
     # Show the plot
     plt.show()
 
-def plot_team_ranking_trend(team_name, df):
+def plot_team_ranking_trend(
+        team_name, 
+        df,
+    ):
     # Filter the DataFrame for the input team
     team_df = df[df['team'] == team_name]
 
@@ -65,9 +106,19 @@ def plot_team_ranking_trend(team_name, df):
     plt.xticks(team_df['Season'], rotation=45)
     plt.show()
     
-def feature_importance(model, X, y):
+def feature_importance(
+        model, 
+        X, 
+        y,
+    ):
     # Calculate permutation importance
-    perm_importance = permutation_importance(model, X, y, n_repeats=30, random_state=42)
+    perm_importance = permutation_importance(
+        model, 
+        X, 
+        y, 
+        n_repeats=30, 
+        random_state=42,
+    )
 
     # Create a DataFrame for permutation importance
     perm_importance_df = pd.DataFrame({
@@ -79,32 +130,25 @@ def feature_importance(model, X, y):
 
 def save_model(
         model,
-        model_type,
-        conference,
-        id,
+        model_path,
     ):
-    with open(f"models/{model_type}/{id}_{conference}_grid_search_{model_type}_class.pkl", "wb") as file:
+    with open(model_path, "wb") as file:
         pickle.dump(model, file)
 
 def evaluate_model(
+            model,
             X_test,
             y_test,
             conference,
-            model_type,
-            model,
-            rank_map
         ):
-    if model_type =='xgb':
-        inverse_rank_map = {v: k for k, v in rank_map.items()}  
+
+        # print(model.best_estimator_) 
+        # print(model.best_params_) 
 
         y_pred = model.predict(X_test)
-        y_pred = pd.Series(y_pred).replace(inverse_rank_map)
 
-    else:
-        y_pred = model.predict(X_test)
-
-    # Evaluate the model
-    print(f"[{conference}] Model evaluation")
-    print(classification_report(y_test, y_pred))
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f'Accuracy: {accuracy}')
+        # Evaluate the model
+        print(f"[{conference}] Model evaluation")
+        print(classification_report(y_test, y_pred))
+        accuracy = accuracy_score(y_test, y_pred)
+        print(f'Accuracy: {accuracy}')

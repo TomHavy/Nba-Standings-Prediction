@@ -6,8 +6,8 @@ def pred(
         data,
         conf,
     ):
-    
-    data = data.query('Season >= 2019')
+
+    # data = data.query('Season >= 2013')
     data = data.drop(['team_full_name', 'winner','not_top_players', 'total_salary'], axis=1)
     data = data.query(f'conference == "{conf}"')
     data.team.value_counts()
