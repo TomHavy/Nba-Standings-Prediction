@@ -28,11 +28,11 @@ def train(
 
     cv = StratifiedKFold(n_splits=2) 
 
-    # RandomForestClassifier good params
-    # model = RandomForestClassifier(max_depth=80, min_samples_leaf=3, min_samples_split=6, n_estimators=300)
-
     if model_type == 'rf':
-            # RandomForestClassifier
+            # RandomForestClassifier good params
+            # model = RandomForestClassifier(max_depth=80, min_samples_leaf=3, min_samples_split=6, n_estimators=300)
+
+            # RandomForestClassifier Grid Search 
             model = GridSearchCV(
                 RandomForestClassifier(),
                 param_grid=rf_param_grid,
