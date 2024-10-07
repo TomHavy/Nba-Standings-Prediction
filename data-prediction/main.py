@@ -17,11 +17,12 @@ def main():
     
     id = random.randint(1000, 9999)
     data = pd.read_csv('data/2007_2025_avg_odds_salary_players_champ_rk_po_avg_rk_cleaned.csv')
-    model_type = 'rf'
+    model_type = 'xgb'
 
     base_dir = f"models/{model_type}/{id}"
     Path(base_dir).mkdir(parents=True, exist_ok=True)
-    
+    # data = data.query('Season >= 2018')
+
     for conf in ['WEST']:  
         model_path = f"{base_dir}/{conf}_grid_search_{model_type}_class.pkl"
   
@@ -55,7 +56,7 @@ def main():
                 data,
                 conf,
             )
-            
+
             print(pred_df)
             
 if __name__ == "__main__":

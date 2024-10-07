@@ -11,6 +11,11 @@ from sklearn.metrics import(
     classification_report, 
     accuracy_score,
 )
+from sklearn.metrics import (
+    mean_squared_error, 
+    mean_absolute_error, 
+    r2_score,
+)
 
 def preprocessing(
         data,
@@ -27,10 +32,10 @@ def preprocessing(
 
     data = pd.get_dummies(data, columns=['team'], drop_first=False)
 
-    print(data.head())
-    print(data.tail(3))
-    print(data.info())
-    print(data.Season.unique())
+    # print(data.head())
+    # print(data.tail(3))
+    # print(data.info())
+    # print(data.Season.unique())
 
     # print(f"Training shape: {X_train.shape}")
     # print(f"Testing shape: {X_test.shape}")
@@ -139,7 +144,6 @@ def evaluate_model(
             model,
             X_test,
             y_test,
-            conference,
         ):
 
         # print(model.best_estimator_) 
@@ -147,8 +151,13 @@ def evaluate_model(
 
         y_pred = model.predict(X_test)
 
-        # Evaluate the model
-        print(f"[{conference}] Model evaluation")
-        print(classification_report(y_test, y_pred))
-        accuracy = accuracy_score(y_test, y_pred)
-        print(f'Accuracy: {accuracy}')
+        print("Mean Absolute Error:", mean_absolute_error(y_test, y_pred))
+        print("Mean Squared Error:", mean_squared_error(y_test, y_pred))
+        print("R² Score:", r2_score(y_test, y_pred))
+
+
+        # # Evaluate the classifier model
+        # print(f"[{conference}] Model evaluation")
+        # print(classification_report(y_test, y_pred))
+        # accuracy = accuracy_score(y_test, y_pred)
+        # print(f'Accuracy: {accuracy}')
