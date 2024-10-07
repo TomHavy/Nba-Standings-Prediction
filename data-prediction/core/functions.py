@@ -41,6 +41,30 @@ def show_feature_correlation(data):
     # Show the plot
     plt.show()
 
+def plot_team_ranking_trend(team_name, df):
+    # Filter the DataFrame for the input team
+    team_df = df[df['team'] == team_name]
+
+    # Sort by season to make sure the years are in chronological order
+    team_df = team_df.sort_values(by='Season')
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    plt.plot(team_df['Season'], team_df['ranking'], marker='o', linestyle='-', color='b')
+    
+    # Invert the Y-axis so that rank 1 is on top and rank 15 is on bottom
+    plt.gca().invert_yaxis()
+    
+    # Add labels and title
+    plt.xlabel('Season', fontsize=12)
+    plt.ylabel('Ranking', fontsize=12)
+    plt.title(f'Ranking Trend for {team_name}', fontsize=14)
+    
+    # Show plot
+    plt.grid(True)
+    plt.xticks(team_df['Season'], rotation=45)
+    plt.show()
+    
 def feature_importance(model, X, y):
     # Calculate permutation importance
     perm_importance = permutation_importance(model, X, y, n_repeats=30, random_state=42)
