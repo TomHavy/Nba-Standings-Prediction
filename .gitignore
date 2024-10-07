@@ -7,8 +7,8 @@ __pycache__/
 *.so
 
 data/temp/
-models/rf/
-models/xgb/
+models/rf/*
+models/xgb/*
 
 # Distribution / packaging
 .Python
