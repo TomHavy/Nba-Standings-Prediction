@@ -1,5 +1,0 @@
-# see also: https://scikit-learn.org/stable/install.html
-
-sqlalchemy == 2.0.35
-pandas == 2.2.1
-scikit-learn == 
