@@ -5,8 +5,13 @@ import pandas as pd
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from utils import get_team_names
-
+from utils import (
+    get_team_conference,
+    get_team_names,
+    get_nb_po,
+    team_avg_roster,
+    find_top_players,
+)
 from cleaning import (
     clean_roster,
     clean_salaries,
@@ -186,61 +191,6 @@ def scrape_nb_championships(season):
     df = pd.DataFrame(team_championships)
     
     return df
-
-    # https://www.basketball-reference.com/leagues/NBA_2024_standings.html
-
-    all_data = pd.DataFrame()
-
-    url = f"https://www.basketball-reference.com/leagues/NBA_{season}_standings.html"
-
-    response = requests.get(url)
-
-    # print(response)
-    # print(url)
-
-    for conf in ['W','E']:
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            table = soup.find('table', {'id': f"confs_standings_{conf}"})
-
-            if table:
-                df = pd.read_html(io.StringIO(str(table)))[0]
-                
-                df['Season'] = season
-                if conf == 'W':
-                    df["conference"] = "WEST" 
-                else:
-                    df['conference'] = "EAST"
-                    
-                df = clean_ranking(df)
-
-                all_data = pd.concat([all_data, df], ignore_index=True)
-
-            else:
-                print(f"No table found for {season}. Looking in Division Standings...")
-
-                soup = BeautifulSoup(response.content, 'html.parser')
-                table = soup.find('table', {'id': f"divs_standings_{conf}"})
-
-                if table:
-                    df = pd.read_html(io.StringIO(str(table)))[0]
-                    
-                    df['Season'] = season
-                    if conf == 'W':
-                        df["conference"] = "WEST" 
-                    else:
-                        df['conference'] = "EAST"
-                    
-                    df = clean_ranking(df)
-
-                    all_data = pd.concat([all_data, df], ignore_index=True)
-                else:
-                    print(f"No table found for {season} in Division Standings.")
-
-        else:
-            print(f"Failed to retrieve data for {season}")
-
-    return all_data
 
 def scrape_ranking(season):
     # https://www.basketball-reference.com/leagues/NBA_2024_standings.html
@@ -425,3 +375,78 @@ def scrape_po():
         time.sleep(4)
 
     return all_data
+
+def scrap_all(start, end):
+    team_conference = get_team_conference()
+
+    end += 1
+
+    seasons_list = [year for year in range(start, end)]
+    all_rosters = scrape_all_rosters(start,end)
+    all_avg_roster = team_avg_roster(all_rosters)
+    all_avg_roster.to_csv(f"data/temp/{start}_{end-1}_avg_roster.csv")
+
+    all_preseason_odds = scrape_all_preseason_odds(start,end)[["Team","Odds"]]
+    all_avg_n_odds = pd.merge(
+        all_avg_roster, 
+        all_preseason_odds, 
+        left_on='team_full_name', 
+        right_on='Team', 
+        how='left',
+    )
+    all_avg_n_odds.drop(columns='Team', inplace=True)
+    all_avg_n_odds.to_csv(f"data/temp/{start}_{end-1}_avg_n_odds.csv")
+
+    all_salaries = scrape_all_salaries(start,end)
+    all_salaries.to_csv(f"data/temp/{start}_{end-1}_salaries_stats.csv")
+
+    all_top_players = find_top_players(all_salaries)
+    team_salary_stats = all_salaries.groupby(['team', 'Season']).agg(
+        highest_salary=('Salary', 'max'),
+        median_salary=('Salary', 'median'),
+        total_salary=('Salary', 'sum'),
+        
+    ).reset_index()
+    all_team_salary_stats = pd.merge(
+        team_salary_stats, 
+        all_top_players, 
+        on=['team', 'Season'], 
+        how="left",
+    )
+    all_avg_odds_salary_players = pd.merge(
+        all_avg_n_odds, 
+        all_team_salary_stats,
+        on=['team', 'Season'], 
+        how='left',
+    )
+
+    all_team_championships = scrape_all_nba_championships(seasons_list)
+    all_avg_odds_salary_players_champ = all_avg_odds_salary_players.merge(
+        all_team_championships, 
+        on=['team', 'Season'], 
+        how='left',
+    )
+    all_avg_odds_salary_players_champ.to_csv(f"data/temp/{start}_{end-1}_avg_odds_salary_players_champ.csv")
+
+    all_ranking = scrape_all_scrape_ranking(seasons_list)
+    all_avg_odds_salary_players_champ_rk = all_avg_odds_salary_players_champ.merge(
+        all_ranking, 
+        on=['team_full_name', 'Season'], 
+        how='left',
+    )
+
+    po = scrape_po()
+    po_apperences = get_nb_po(po)
+
+    all_avg_odds_salary_players_champ_rk_po = all_avg_odds_salary_players_champ_rk.merge(
+        po_apperences, 
+        on=['team_full_name','Season'],
+        how='left',
+    )
+    all_avg_odds_salary_players_champ_rk_po = all_avg_odds_salary_players_champ_rk_po.sort_values(by=['team_full_name', 'Season'], ascending=[True, False])
+    all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'] = all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'].bfill()
+    all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'] = all_avg_odds_salary_players_champ_rk_po['nb_po_apperence'].astype("Int64")
+    all_avg_odds_salary_players_champ_rk_po.insert(16, 'nb_po_apperence', all_avg_odds_salary_players_champ_rk_po.pop('nb_po_apperence'))
+
+    all_avg_odds_salary_players_champ_rk_po.to_csv(f"data/temp/{start}_{end-1}_avg_odds_salary_players_champ_rk_po.csv")
+    print(f'Successfully collected data from {start} to {end-1} and saved in data/temp/ ')
