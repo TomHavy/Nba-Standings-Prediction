@@ -20,6 +20,79 @@ from cleaning import (
     clean_po,
 )
 
+def scrape_po():
+    # https://www.basketball-reference.com/teams/BOS/
+
+    team_names = get_team_names(2000)
+
+    all_data = pd.DataFrame()
+    print('Scraping Playoffs apperences data for every team...')
+    
+    for team in team_names:
+        if team == 'BRK':
+            team = 'NJN'
+        elif team == 'CHO':
+            team = 'CHA'
+        elif team == 'NOP' or team == 'NOK':
+            team = 'NOH'
+        elif team == 'SEA':
+            team = 'OKC'
+
+        url = f"https://www.basketball-reference.com/teams/{team}"
+
+        response = requests.get(url)
+
+        # print(response)
+        # print(url)
+
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            table = soup.find('table', {'id': team})
+
+            if table:
+                df = pd.read_html(io.StringIO(str(table)))[0]
+                
+                df = clean_po(df)
+
+                all_data = pd.concat([all_data, df], ignore_index=True)
+
+            else:
+                print(f"No table found for {team}")
+
+        else:
+            print(f"Failed to retrieve data for {team} ")
+
+        time.sleep(4)
+
+    return all_data
+
+def scrape_champions():
+    # https://www.basketball-reference.com/playoffs/
+
+    df = pd.DataFrame()
+
+    url = f"https://www.basketball-reference.com/playoffs/"
+
+    response = requests.get(url)
+
+    # print(url)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        table = soup.find('table', {'id': 'champions_index'})
+
+        if table:
+            df = pd.read_html(io.StringIO(str(table)))[0]
+            df = clean_champions(df)
+        else:
+        
+            print(f"No table found ")
+
+    else:
+        print(f"Failed to retrieve data: {response}")
+
+    return df
+
 def scrape_roster(season):
     # https://www.basketball-reference.com/teams/DAL/2025.html
 
@@ -120,33 +193,6 @@ def scrape_salaries(
             print(f"No div with id 'div_salaries2' found for {team} in {season}")
             
     return all_data
-
-def scrape_champions():
-    # https://www.basketball-reference.com/playoffs/
-
-    df = pd.DataFrame()
-
-    url = f"https://www.basketball-reference.com/playoffs/"
-
-    response = requests.get(url)
-
-    # print(url)
-
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
-        table = soup.find('table', {'id': 'champions_index'})
-
-        if table:
-            df = pd.read_html(io.StringIO(str(table)))[0]
-            df = clean_champions(df)
-        else:
-        
-            print(f"No table found ")
-
-    else:
-        print(f"Failed to retrieve data: {response}")
-
-    return df
 
 def scrape_nb_championships(season):
     # Count number of championships for a given team and season
@@ -318,7 +364,7 @@ def scrape_all_nba_championships(seasons_list):
 
     return all_team_championships
 
-def scrape_all_scrape_ranking(seasons_list):
+def scrape_all_ranking(seasons_list):
     
     all_ranking = pd.DataFrame()
 
@@ -329,52 +375,6 @@ def scrape_all_scrape_ranking(seasons_list):
         all_ranking = pd.concat([all_ranking, ranking], ignore_index=True)
 
     return all_ranking
-
-def scrape_po():
-    # https://www.basketball-reference.com/teams/BOS/
-
-    team_names = get_team_names(2000)
-
-    all_data = pd.DataFrame()
-    print('Scraping Playoffs apperences data for every team...')
-    
-    for team in team_names:
-        if team == 'BRK':
-            team = 'NJN'
-        elif team == 'CHO':
-            team = 'CHA'
-        elif team == 'NOP' or team == 'NOK':
-            team = 'NOH'
-        elif team == 'SEA':
-            team = 'OKC'
-
-        url = f"https://www.basketball-reference.com/teams/{team}"
-
-        response = requests.get(url)
-
-        # print(response)
-        # print(url)
-
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            table = soup.find('table', {'id': team})
-
-            if table:
-                df = pd.read_html(io.StringIO(str(table)))[0]
-                
-                df = clean_po(df)
-
-                all_data = pd.concat([all_data, df], ignore_index=True)
-
-            else:
-                print(f"No table found for {team}")
-
-        else:
-            print(f"Failed to retrieve data for {team} ")
-
-        time.sleep(4)
-
-    return all_data
 
 def scrap_all(start, end):
     team_conference = get_team_conference()
@@ -428,7 +428,7 @@ def scrap_all(start, end):
     )
     all_avg_odds_salary_players_champ.to_csv(f"data/temp/{start}_{end-1}_avg_odds_salary_players_champ.csv")
 
-    all_ranking = scrape_all_scrape_ranking(seasons_list)
+    all_ranking = scrape_all_ranking(seasons_list)
     all_avg_odds_salary_players_champ_rk = all_avg_odds_salary_players_champ.merge(
         all_ranking, 
         on=['team_full_name', 'Season'], 
