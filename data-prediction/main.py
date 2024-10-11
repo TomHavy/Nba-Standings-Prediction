@@ -1,5 +1,4 @@
 
-import pickle
 import random
 
 import pandas as pd
@@ -9,8 +8,8 @@ from core.predict import pred
 from core.train import train
 from core.functions import(
     preprocessing,
-    save_model,
-    evaluate_model,
+    save,
+    evaluate,
 )
 
 def main():
@@ -23,7 +22,7 @@ def main():
     Path(base_dir).mkdir(parents=True, exist_ok=True)
     # data = data.query('Season >= 2018')
 
-    for conf in ['WEST']:  
+    for conf in ['WEST','EAST']:  
         model_path = f"{base_dir}/{conf}_grid_search_{model_type}_class.pkl"
   
         X_train, X_test, y_train, y_test = preprocessing(
@@ -37,27 +36,23 @@ def main():
             model_type,
         )  
 
-        save_model(
+        save(
             model,
             model_path,
         )
         
-        evaluate_model(
+        evaluate(
             model,
             X_test,
             y_test,
-            conf,
         )
         
-        with open(model_path, "rb") as file:
-            model = pickle.load(file)
-            pred_df = pred(
-                model, 
-                data,
-                conf,
-            )
+        pred(
+            model_path, 
+            data,
+            conf,
+        )
 
-            print(pred_df)
             
 if __name__ == "__main__":
     main()

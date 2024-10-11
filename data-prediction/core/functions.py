@@ -133,14 +133,14 @@ def feature_importance(
 
     print(perm_importance_df)   
 
-def save_model(
+def save(
         model,
         model_path,
     ):
     with open(model_path, "wb") as file:
         pickle.dump(model, file)
 
-def evaluate_model(
+def evaluate(
             model,
             X_test,
             y_test,

@@ -1,8 +1,5 @@
-import pandas as pd
-
-from utils import concatenate_save_finaldf
-
-from scrap import scrap_all
+from core.utils import concatenate_save_finaldf
+from core.scrap import scrap_all
 
 def main():
 

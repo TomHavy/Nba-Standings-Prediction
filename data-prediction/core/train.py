@@ -31,7 +31,10 @@ def train(
 
     cv = StratifiedKFold(n_splits=2) 
 
+    
     if model_type == 'rf':
+            model = RandomForestRegressor()
+
             model = GridSearchCV(
                 # RandomForestClassifier(),
                 RandomForestRegressor(),
@@ -41,14 +44,15 @@ def train(
                 verbose=2,
             )
     elif model_type == 'xgb':
-        model = GridSearchCV(
-            # xgb.XGBClassifier(),
-            xgb.XGBRegressor(),
-            param_grid=xgb_param_grid,
-            cv=cv,
-            n_jobs=-1,
-            verbose=2,
-        )
+        model = xgb.XGBRegressor()
+        # model = GridSearchCV(
+        #     # xgb.XGBClassifier(),
+        #     xgb.XGBRegressor(),
+        #     param_grid=xgb_param_grid,
+        #     cv=cv,
+        #     n_jobs=-1,
+        #     verbose=2,
+        # )
     else:
         raise ValueError("Invalid model_type! Use 'rf' for RandomForest or 'xgb' for XGBoost.")
 
