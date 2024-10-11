@@ -1,8 +1,9 @@
+import pickle
 import numpy as np
 import pandas as pd
 
 def pred(
-        model,
+        model_path,
         data,
         conf,
     ):
@@ -26,6 +27,9 @@ def pred(
 
     new_season_data.drop(['ranking'], axis=1, inplace=True)
 
+    with open(model_path, "rb") as file:
+        model = pickle.load(file)
+        
     new_season_data['predicted_rank'] = model.predict(new_season_data.values)
     noise = np.random.uniform(0, 1e-5, size=new_season_data.shape[0])
     new_season_data['adjusted_score'] = new_season_data['predicted_rank'] + noise
@@ -39,7 +43,6 @@ def pred(
     # new_season_data['adjusted_score'] = predicted_scores + noise
     # new_season_data['predicted_rank'] = new_season_data['adjusted_score'].rank(method='first', ascending=False).astype(int)
 
-
     new_season_data['team'] = new_season_teams
     new_season_data = new_season_data[[
         'team',
@@ -47,4 +50,4 @@ def pred(
         'predicted_rank',
     ]].sort_values(by='predicted_rank')
 
-    return new_season_data
+    print(new_season_data)
