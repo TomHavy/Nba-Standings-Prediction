@@ -20,8 +20,8 @@ The target variable is the team **ranking** for each season.
 
 ### Final dataset columns:
 
-| **Season**  | **Team Abbreviation** | **Full Team Name** | **Conference** | **Avg Age** | **Avg Exp (years)** | **Avg Weight (lbs)** | **Avg Height (inches)** | **Preseason Odds** | **Highest Salary ($M)** | **Median Salary ($M)**  | **Nb of Top Players** |  **Nb of Non-Top Players** | **Total Championships** |  **Championships (Last 4 Years)** | **Total Playoff Appearances** |  **Ranking [TARGET]** |  
-|-------------|-----------------------|--------------------|----------------|-------------|---------------------|----------------------|-------------------------|--------------------|----------------------|-------------------------|-----------------------|---------------------------|--------------------------|-----------------------------|-------------------------|--------------------|
+| **Season**  | **Team Abbreviation** | **Full Team Name** | **Conference** | **Avg Age** | **Avg Exp (years)** | **Avg Weight (lbs)** | **Avg Height (inches)** | **Preseason Odds** | **Highest Salary ($M)** | **Median Salary ($M)**  | **Nb of Top Players** |  **Nb of Non-Top Players** | **Total Championships** |  **Championships (Last 4 Years)** | **Total Playoff Appearances** | **Avg Rank (Last 4 Years)** | **Ranking [TARGET]** |  
+|-------------|-----------------------|--------------------|----------------|-------------|---------------------|----------------------|-------------------------|--------------------|----------------------|-------------------------|-----------------------|---------------------------|--------------------------|-----------------------------|-------------------------|--------------------|--------------------|
 
 ### Note: 
 - The **Season** column uses a single year for the season (e.g., for the 2024-2025 season, the value would be 2025).
